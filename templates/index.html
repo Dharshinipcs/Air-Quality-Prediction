@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Prediction</title>
+    <style>
+        /* Page Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        /* Container Box */
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            color: #333;
+        }
+        
+        h2 {
+            color: #222;
+        }
+
+        /* Input Fields */
+        .input-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 120px;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        /* Predict Button */
+        .predict-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+        .predict-btn:hover {
+            background: #ff4757;
+        }
+
+         /* Output Box - Fixed Width & Centered */
+        .output-box {
+            background-color: #2ed573;
+            color: white;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 5px;
+            display: block;
+            width: 90%;  /* Prevents it from going beyond */
+            max-width: 400px;  /* Keeps a max width */
+            margin-left: auto;
+            margin-right: auto;
+            word-wrap: break-word;  /* Ensures long text doesn't overflow */
+            overflow: hidden;
+        }
+
+        /* Air Quality Level */
+        .air-quality-level {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;  /* Centers the message */
+            width: 90%;
+            max-width: 400px;  /* Matches output box width */
+            margin-left: auto;
+            margin-right: auto;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* Color-coded air quality messages */
+        .good { color: #2ecc71; }
+        .moderate { color: #f1c40f; }
+        .unhealthy { color: #e67e22; }
+        .hazardous { color: #e74c3c; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🌍 Air Quality Prediction 🌿</h2>
+    <form action="/" method="post">
+        <div class="input-container">
+            <div class="input-box">
+                <label>CO Sensor Reading (Air Pollution Level)</label>
+                <input type="text" name="PT08.S1(CO)" value="{{ inputs.get('PT08.S1(CO)', '') }}">
+            </div>
+            <div class="input-box">
+                <label>Non-Methane Hydrocarbons (Industrial Emissions)</label>
+                <input type="text" name="NMHC(GT)" value="{{ inputs.get('NMHC(GT)', '') }}">
+            </div>
+            <div class="input-box">
+                <label>Benzene (C₆H₆) Concentration (Vehicle Exhaust Fumes)</label>
+                <input type="text" name="C6H6(GT)" value="{{ inputs.get('C6H6(GT)', '') }}">
+            </div>
+            <div class="input-box">
+                <label>NMHC Sensor Reading (Air Quality Monitoring)</label>
+                <input type="text" name="PT08.S2(NMHC)" value="{{ inputs.get('PT08.S2(NMHC)', '') }}">
+            </div>
+            <div class="input-box">
+                <label>Nitrogen Oxides (NOx) - Traffic & Power Plants</label>
+                <input type="text" name="NOx(GT)" value="{{ inputs.get('NOx(GT)', '') }}">
+            </div>
+            <div class="input-box">
+                <label>NOx Sensor Reading (Air Quality Monitoring)</label>
+                <input type="text" name="PT08.S3(NOx)" value="{{ inputs.get('PT08.S3(NOx)', '') }}">
+            </div>
+            <div class="input-box">
+                <label>Nitrogen Dioxide (NO₂) - Combustion of Fossil Fuels</label>
+                <input type="text" name="NO2(GT)" value="{{ inputs.get('NO2(GT)', '') }}">
+            </div>
+            <div class="input-box">
+                <label>NO₂ Sensor Reading (Air Quality Monitoring)</label>
+                <input type="text" name="PT08.S4(NO2)" value="{{ inputs.get('PT08.S4(NO2)', '') }}">
+            </div>
+            <div class="input-box">
+                <label>Ozone (O₃) Sensor Reading (Smog & UV Absorption)</label>
+                <input type="text" name="PT08.S5(O3)" value="{{ inputs.get('PT08.S5(O3)', '') }}">
+            </div>
+            <div class="input-box">
+                <label>Temperature (°C) - Weather Condition</label>
+                <input type="text" name="T" value="{{ inputs.get('T', '') }}">
+            </div>
+            <div class="input-box">
+                <label>Relative Humidity (%) - Moisture in Air</label>
+                <input type="text" name="RH" value="{{ inputs.get('RH', '') }}">
+            </div>
+            <div class="input-box">
+                <label>Absolute Humidity - Water Vapor in Air</label>
+                <input type="text" name="AH" value="{{ inputs.get('AH', '') }}">
+            </div>
+        </div>
+        <button type="submit" class="predict-btn">Predict Air Quality</button>
+    </form>
+
+    {% if prediction is not none %}
+        <div class="output-box">
+            Predicted CO(GT): {{ prediction }} ppm
+        </div>
+
+        <div class="air-quality-level">
+            {% if prediction < 1 %}
+                <span class="good">✅ Good Air Quality</span> - Safe to go outdoors! 🌳 Enjoy the fresh air.
+            {% elif prediction < 4 %}
+                <span class="moderate">⚠️ Moderate Air Quality</span> - Mostly okay, but sensitive individuals should limit outdoor exposure.
+            {% elif prediction < 10 %}
+                <span class="unhealthy">❗ Unhealthy Air Quality</span> - People with asthma or respiratory issues should wear masks. 😷 Limit outdoor activities.
+            {% else %}
+                <span class="hazardous">☠️ Hazardous Air Quality</span> - Stay indoors! 🚨 Use air purifiers and avoid outdoor activities.
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+</body>
+</html>
